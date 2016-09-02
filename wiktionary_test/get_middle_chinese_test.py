@@ -27,3 +27,17 @@ class GetMiddleChineseWordTest(unittest.TestCase):
         self.assertIsNotNone(middle_chinese_reading)
 
         self.assertEqual(u'ʈɨo , liᴇt̚', middle_chinese_reading)
+
+    def test_get_middle_chinese_for_character_simplified(self):
+        middle_chinese_reading = get_middle_chinese_for_character(u'係')
+
+        self.assertIsNotNone(middle_chinese_reading)
+
+        self.assertEqual(u'ɦeiᴴ', middle_chinese_reading)
+
+    def test_get_middle_chinese_for_character_wikitable(self):
+        middle_chinese_reading = get_middle_chinese_for_character(u'実')
+
+        self.assertIsNotNone(middle_chinese_reading)
+
+        self.assertEqual(u'ʑiɪt̚', middle_chinese_reading)

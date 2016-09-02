@@ -24,5 +24,18 @@ def get_middle_chinese_for_character(character):
                 .string
             return get_middle_chinese_for_character(traditional_chinese)
         except AttributeError:
-            return u''
-
+            try:
+                traditional_chinese = html_soup.find("table", class_="wikitable floatright").find(
+                    "a", {"title": "wikipedia:Traditional Chinese"}).next_element.next_element.next_element.text
+                middle_chinese_reading = get_middle_chinese_for_character(traditional_chinese)
+                if middle_chinese_reading == u'':
+                    simplified_chinese = html_soup.find("table", class_="wikitable floatright").find(
+                        "a", {"title": "wikipedia:Simplified Chinese"}).next_element.next_element.next_element.text
+                    middle_chinese_reading = get_middle_chinese_for_character(simplified_chinese)
+                return middle_chinese_reading
+            except AttributeError:
+                try:
+                    simplified_chinese = html_soup.find("a", text="simp.").next_element.next_element.next_element.text
+                    return get_middle_chinese_for_character(simplified_chinese)
+                except AttributeError:
+                    return u''
