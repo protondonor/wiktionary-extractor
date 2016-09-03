@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from wiktionary.get_html_for_word import get_html_for_word
 
 
-def get_middle_chinese_for_character(character):
+def get_middle_chinese_for_character(character, skip_simplified=False):
     html_string = get_html_for_word(character)
     html_soup = BeautifulSoup(html_string, "html.parser")
     middle_chinese_link = html_soup.find("a", {"title": "w:Middle Chinese"})
@@ -22,20 +22,21 @@ def get_middle_chinese_for_character(character):
         try:
             traditional_chinese = html_soup.find(text="For pronunciation and definitions of").parent.parent.find("a")\
                 .string
-            return get_middle_chinese_for_character(traditional_chinese)
+            return get_middle_chinese_for_character(traditional_chinese, skip_simplified)
         except AttributeError:
-            try:
-                traditional_chinese = html_soup.find("table", class_="wikitable floatright").find(
-                    "a", {"title": "wikipedia:Traditional Chinese"}).next_element.next_element.next_element.text
-                middle_chinese_reading = get_middle_chinese_for_character(traditional_chinese)
-                if middle_chinese_reading == u'':
-                    simplified_chinese = html_soup.find("table", class_="wikitable floatright").find(
-                        "a", {"title": "wikipedia:Simplified Chinese"}).next_element.next_element.next_element.text
-                    middle_chinese_reading = get_middle_chinese_for_character(simplified_chinese)
-                return middle_chinese_reading
-            except AttributeError:
+            if not skip_simplified:
                 try:
-                    simplified_chinese = html_soup.find("a", text="simp.").next_element.next_element.next_element.text
-                    return get_middle_chinese_for_character(simplified_chinese)
+                    traditional_chinese = html_soup.find("table", class_="wikitable floatright").find(
+                        "a", {"title": "wikipedia:Traditional Chinese"}).next_element.next_element.next_element.text
+                    middle_chinese_reading = get_middle_chinese_for_character(traditional_chinese, True)
+                    return middle_chinese_reading
                 except AttributeError:
-                    return u''
+                        try:
+                            simplified_chinese = html_soup.find("a", text="simp.").next_element.next_element.next_element.text
+                            if simplified_chinese == 'trad.':
+                                return u''
+                            return get_middle_chinese_for_character(simplified_chinese, True)
+                        except AttributeError:
+                            return u''
+            else:
+                return u''
